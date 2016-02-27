@@ -29,6 +29,10 @@ int main(int argc, char *argv[])
     struct timespec start, end;
     double cpu_time1, cpu_time2;
 
+#if defined(OPT)
+    initHash();
+#endif
+
     /* check file opening */
     fp = fopen(DICT_FILE, "r");
     if (fp == NULL) {
