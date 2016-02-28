@@ -5,15 +5,17 @@
 
 #include "phonebook.h"
 
-#define GET_PRIV_PTR(IMPL, ptr) ((IMPL *)((ptr)->privData))
+
 #define GEN_DEF(prefix) \
 static entry * prefix##FindName(char lastname[], entry *pHead);\
 static int prefix##Append(char lastName[], entry **pHead, entry **e);\
 static int prefix##Free(entry *pHead);
 #define GEN_INIT_STRUCT(n, prefix) {.name=n, .findName=prefix##FindName, .append=prefix##Append, .free=prefix##Free}
+#define ALLOC_ENTRY(IMPL) (entry *) malloc(sizeof(entry)+sizeof(IMPL))
+#define GET_PRIV_PTR(IMPL, ptr) ((IMPL *)((ptr)->privData))
 
-GEN_DEF(ll)
-GEN_DEF(avl)
+GEN_DEF(ll);
+GEN_DEF(avl);
 
 static impl implList[] = {
     GEN_INIT_STRUCT("linkedlist", ll),
@@ -51,12 +53,12 @@ static entry *llFindName(char lastname[], entry *pHead)
 static int llAppend(char lastName[], entry **ppHead, entry **pE)
 {
     if(*ppHead == NULL) {
-        *pE = *ppHead = (entry *) malloc(sizeof(entry)+sizeof(llpriv));
+        *pE = *ppHead = ALLOC_ENTRY(llpriv);
         GET_PRIV_PTR(llpriv, *pE)->pNext = NULL;
         strcpy((*pE)->lastName, lastName);
     } else {
         /* allocate memory for the new entry and put lastName */
-        GET_PRIV_PTR(llpriv, *pE)->pNext = (entry *) malloc(sizeof(entry)+sizeof(llpriv));
+        GET_PRIV_PTR(llpriv, *pE)->pNext = ALLOC_ENTRY(llpriv);
         (*pE) = GET_PRIV_PTR(llpriv, *pE)->pNext;
         strcpy((*pE)->lastName, lastName);
         GET_PRIV_PTR(llpriv, *pE)->pNext = NULL;
