@@ -16,7 +16,7 @@ typedef struct __PHONE_BOOK_ENTRY {
     char state[2];
     char zip[5];
 #ifdef OPT_ALIGN
-    char alignByte;
+    char alignByte[OPT_ALIGN];
 #endif
     unsigned char privData[];
 } entry;

@@ -1,5 +1,5 @@
 CC ?= gcc
-CFLAGS_common ?= -Wall -std=gnu99 -O0
+CFLAGS ?= -Wall -std=gnu99 -O0 -DOPT_ALIGN=5
 
 EXEC = phonebook
 all: $(EXEC)

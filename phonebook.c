@@ -63,4 +63,5 @@ static int llFree(entry *pHead)
         free(pHead);
         pHead = next;
     }
+    return 1;
 }
