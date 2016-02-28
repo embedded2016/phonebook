@@ -21,7 +21,7 @@ cache-test: $(EXEC)
 		./phonebook linkedlist orig.txt
 	perf stat --repeat 100 \
 		-e cache-misses,cache-references,instructions,cycles \
-		./phonebook linkedlist opt.txt
+		./phonebook avltree opt.txt
 
 output.txt: cache-test calculate
 	./calculate

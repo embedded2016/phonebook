@@ -6,17 +6,19 @@
 #include "phonebook.h"
 
 #define GET_PRIV_PTR(IMPL, ptr) ((IMPL *)((ptr)->privData))
+#define GEN_DEF(prefix) \
+static entry * prefix##FindName(char lastname[], entry *pHead);\
+static int prefix##Append(char lastName[], entry **pHead, entry **e);\
+static int prefix##Free(entry *pHead);
+#define GEN_INIT_STRUCT(n, prefix) {.name=n, .findName=prefix##FindName, .append=prefix##Append, .free=prefix##Free}
 
-typedef struct __LINKEDLIST_PRIV_DATA {
-    struct __PHONE_BOOK_ENTRY *pNext;
-} llpriv;
+GEN_DEF(ll)
+GEN_DEF(avl)
 
-static entry *llFindName(char lastname[], entry *pHead);
-static int llAppend(char lastName[], entry **pHead, entry **e);
-static int llFree(entry *pHead);
-
-
-static impl implList[] = {{.name="linkedlist", .findName=llFindName, .append=llAppend, .free=llFree}};
+static impl implList[] = {
+    GEN_INIT_STRUCT("linkedlist", ll),
+    GEN_INIT_STRUCT("avltree", avl)
+};
 
 int initImpl(impl *opt, const char *implName)
 {
@@ -29,6 +31,12 @@ int initImpl(impl *opt, const char *implName)
     }
     return 0;
 }
+
+/* Linked List */
+
+typedef struct __LINKEDLIST_PRIV_DATA {
+    struct __PHONE_BOOK_ENTRY *pNext;
+} llpriv;
 
 static entry *llFindName(char lastname[], entry *pHead)
 {
@@ -64,4 +72,27 @@ static int llFree(entry *pHead)
         pHead = next;
     }
     return 1;
+}
+
+/* AVL Tree */
+
+typedef struct __AVLTREE_PRIV_DATA {
+    struct __AVLTREE_PRIV_DATA *pLeft;
+    struct __AVLTREE_PRIV_DATA *pRight;
+    int bf;
+} avlpriv;
+
+static entry *avlFindName(char lastname[], entry *pHead)
+{
+    return NULL;
+}
+
+static int avlAppend(char lastName[], entry **ppHead, entry **pE)
+{
+    return 0;
+}
+
+static int avlFree(entry *pHead)
+{
+    return 0;
 }
