@@ -46,7 +46,7 @@ static int llAppend(char lastName[], entry **ppHead, entry **pE)
         *pE = *ppHead = (entry *) malloc(sizeof(entry)+sizeof(llpriv));
         GET_PRIV_PTR(llpriv, *pE)->pNext = NULL;
         strcpy((*pE)->lastName, lastName);
-    }else{
+    } else {
         /* allocate memory for the new entry and put lastName */
         GET_PRIV_PTR(llpriv, *pE)->pNext = (entry *) malloc(sizeof(entry)+sizeof(llpriv));
         (*pE) = GET_PRIV_PTR(llpriv, *pE)->pNext;

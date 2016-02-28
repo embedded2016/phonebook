@@ -18,8 +18,7 @@ typedef struct __PHONE_BOOK_ENTRY {
     unsigned char privData[];
 } entry;
 
-typedef struct __IMPL
-{
+typedef struct __IMPL {
     const char name[12];
     /* if return NULL, nothing found */
     entry *(*findName)(char lastname[], entry *pHead);

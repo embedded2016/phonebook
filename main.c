@@ -28,7 +28,7 @@ int main(int argc, char *argv[])
         printf("IMPL can be either linkedlist or avltree.\n");
         exit(1);
     }
-    
+
     impl myImpl;
     assert(initImpl(&myImpl, argv[1]));
 
@@ -46,11 +46,11 @@ int main(int argc, char *argv[])
     }
 
     /* build the entry */
-    entry *pHead=NULL, *e=NULL;    
+    entry *pHead=NULL, *e=NULL;
     /*
-#if defined(__GNUC__)
+    #if defined(__GNUC__)
     __builtin___clear_cache((char *) pHead, (char *) pHead + sizeof(entry));
-#endif*/
+    #endif*/
     clock_gettime(CLOCK_REALTIME, &start);
     while (fgets(line, sizeof(line), fp)) {
         while (line[i] != '\0')
