@@ -5,6 +5,7 @@
 #include <assert.h>
 
 #include "phonebook.h"
+#include "memorypool.h"
 
 #define DICT_FILE "./dictionary/words.txt"
 
@@ -19,6 +20,17 @@ static double diff_in_second(struct timespec t1, struct timespec t2)
         diff.tv_nsec = t2.tv_nsec - t1.tv_nsec;
     }
     return (diff.tv_sec + diff.tv_nsec / 1000000000.0);
+}
+
+static int mpHandle = -1;
+
+static void *myAlloc(size_t size)
+{
+    return mpAlloc(mpHandle, size);
+}
+
+static void myFree(void *addr)
+{
 }
 
 int main(int argc, char *argv[])
@@ -44,6 +56,9 @@ int main(int argc, char *argv[])
         printf("cannot open the file\n");
         return -1;
     }
+
+    mpHandle = mpInit(sizeof(entry) * 300000);
+    setMemoryFunc(myAlloc, myFree);
 
     /* build the entry */
     entry *pHead=NULL, *e=NULL;
@@ -92,6 +107,8 @@ int main(int argc, char *argv[])
     printf("execution time of findName() : %lf sec\n", cpu_time2);
 
     myImpl.free(pHead);
+
+    mpFree(mpHandle);
 
     return 0;
 }

@@ -11,7 +11,7 @@ static entry * prefix##FindName(char lastname[], entry *pHead);\
 static int prefix##Append(char lastName[], entry **pHead, entry **e);\
 static int prefix##Free(entry *pHead);
 #define GEN_INIT_STRUCT(n, prefix) {.name=n, .findName=prefix##FindName, .append=prefix##Append, .free=prefix##Free}
-#define ALLOC_ENTRY(IMPL) (entry *) malloc(sizeof(entry)+sizeof(IMPL))
+#define ALLOC_ENTRY(IMPL) (entry *) alloc(sizeof(entry)+sizeof(IMPL))
 #define GET_PRIV_PTR(IMPL, ptr) ((IMPL *)((ptr)->privData))
 
 GEN_DEF(ll);
@@ -21,6 +21,9 @@ static impl implList[] = {
     GEN_INIT_STRUCT("linkedlist", ll),
     GEN_INIT_STRUCT("avltree", avl)
 };
+
+static void *(*alloc)(size_t)=malloc;
+static void (*dealloc)(void *)=free;
 
 int initImpl(impl *opt, const char *implName)
 {
@@ -32,6 +35,13 @@ int initImpl(impl *opt, const char *implName)
         }
     }
     return 0;
+}
+
+
+void setMemoryFunc(void *(*allocator)(size_t), void (*deallocator)(void *))
+{
+    alloc = allocator;
+    dealloc = deallocator;
 }
 
 /* Linked List */
@@ -70,7 +80,7 @@ static int llFree(entry *pHead)
 {
     while(pHead != NULL) {
         entry *next = GET_PRIV_PTR(llpriv, pHead)->pNext;
-        free(pHead);
+        dealloc(pHead);
         pHead = next;
     }
     return 1;
