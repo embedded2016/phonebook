@@ -1,15 +1,16 @@
 CC ?= gcc
 CFLAGS ?= -Wall -std=gnu99 -O0 -DOPT_ALIGN=5
+LFLAGS = -lm
 
 EXEC = phonebook
 all: $(EXEC)
 
-SRCS = main.c
+SRCS = main.c memorypool.c
 
-phonebook: $(SRCS) phonebook.c phonebook.h
+phonebook: $(SRCS) phonebook.c memorypool.c memorypool.h phonebook.h
 	$(CC) $(CFLAGS) \
 		-o $@ \
-		$(SRCS) $@.c
+		$(SRCS) $@.c $(LFLAGS)
 
 run: $(EXEC)
 	echo 3 | sudo tee /proc/sys/vm/drop_caches
@@ -31,6 +32,9 @@ plot: output.txt
 
 calculate: calculate.c
 	$(CC) $(CFLAGS_common) $^ -o $@
+
+astyle:
+	astyle --style=kr --indent=spaces=4 --indent-switches --suffix=none *.[ch]
 
 .PHONY: clean
 clean:

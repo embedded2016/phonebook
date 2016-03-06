@@ -31,7 +31,8 @@ typedef struct __IMPL {
     int (*free)(entry *pHead);
 } impl;
 
-/* find implementation */
+/* find implementation and provide memory function */
 int initImpl(impl *opt, const char *implName);
+void setMemoryFunc(void *(*allocator)(size_t), void (*deallocator)(void *));
 
 #endif
