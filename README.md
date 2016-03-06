@@ -15,3 +15,7 @@ Install Git pre-commit hook to check C/C++ source file format
 ```sh
 ln -sf ../../scripts/pre-commit.hook .git/hooks/pre-commit
 ```
+
+Optimize dicision:
+1. Memory alignment. sizeof(entry) = 123+OPT_ALIGN
+	

@@ -1,34 +1,28 @@
 CC ?= gcc
-CFLAGS_common ?= -Wall -std=gnu99
-CFLAGS_orig = -O0
-CFLAGS_opt  = -O0
+CFLAGS ?= -Wall -std=gnu99 -O0 -DOPT_ALIGN=5
+LFLAGS = -lm
 
-EXEC = phonebook_orig phonebook_opt
+EXEC = phonebook
 all: $(EXEC)
 
-SRCS_common = main.c
+SRCS = main.c memorypool.c
 
-phonebook_orig: $(SRCS_common) phonebook_orig.c phonebook_orig.h
-	$(CC) $(CFLAGS_common) $(CFLAGS_orig) \
-		-DIMPL="\"$@.h\"" -o $@ \
-		$(SRCS_common) $@.c
-
-phonebook_opt: $(SRCS_common) phonebook_opt.c phonebook_opt.h
-	$(CC) $(CFLAGS_common) $(CFLAGS_opt) \
-		-DIMPL="\"$@.h\"" -o $@ \
-		$(SRCS_common) $@.c
+phonebook: $(SRCS) phonebook.c memorypool.c memorypool.h phonebook.h
+	$(CC) $(CFLAGS) \
+		-o $@ \
+		$(SRCS) $@.c $(LFLAGS)
 
 run: $(EXEC)
 	echo 3 | sudo tee /proc/sys/vm/drop_caches
-	watch -d -t "./phonebook_orig && echo 3 | sudo tee /proc/sys/vm/drop_caches"
+	watch -d -t "./phonebook linkedlist orig.txt && echo 3 | sudo tee /proc/sys/vm/drop_caches"
 
 cache-test: $(EXEC)
 	perf stat --repeat 100 \
 		-e cache-misses,cache-references,instructions,cycles \
-		./phonebook_orig
+		./phonebook linkedlist orig.txt
 	perf stat --repeat 100 \
 		-e cache-misses,cache-references,instructions,cycles \
-		./phonebook_opt
+		./phonebook avltree opt.txt
 
 output.txt: cache-test calculate
 	./calculate
@@ -38,6 +32,9 @@ plot: output.txt
 
 calculate: calculate.c
 	$(CC) $(CFLAGS_common) $^ -o $@
+
+astyle:
+	astyle --style=kr --indent=spaces=4 --indent-switches --suffix=none *.[ch]
 
 .PHONY: clean
 clean:
