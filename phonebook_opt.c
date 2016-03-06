@@ -3,42 +3,25 @@
 
 #include "phonebook_opt.h"
 
-void initHash()
-{
-    memset(hash_table, 0, sizeof(hash_table));
-}
-
-int nameToHash(char *lastName)
-{
-    unsigned int hash_key = 0;
-    unsigned int length = 0;
-    unsigned int i;
-
-    if(lastName == NULL)
-        return -1;
-
-    length = strlen(lastName);
-
-    for(i=0; i<length; i++) {
-        hash_key += ((lastName[i] - 'a') << (CHAR_SIZE << (length-i)));
-    }
-
-    return hash_key % (HASH_SIZE);
-}
-
 /* FILL YOUR OWN IMPLEMENTATION HERE! */
-entry *findName(char lastname[], entry *pHead)
+entry *findName(char lastName[], entry *pHead)
 {
-    /* TODO: implement */\
-    unsigned int key;
-
-    key = nameToHash(lastname);
-    memcpy(pHead->lastName, hash_table[key].phoneBook.lastName, sizeof(hash_table[key].phoneBook.lastName));
-    return pHead;
+    /* TODO: implement */
+    while (pHead != NULL) {
+        if (strcasecmp(lastName, pHead->lastName) == 0) {
+            return pHead;
+        }
+        pHead = pHead->pNext;
+    }
+    return NULL;
 }
 
 entry *append(char lastName[], entry *e)
 {
-    memcpy(hash_table[nameToHash(lastName)].phoneBook.lastName, lastName, sizeof(lastName));
+    /* allocate memory for the new entry and put lastName */
+    e->pNext = (entry *) malloc(sizeof(entry));
+    e = e->pNext;
+    strcpy(e->lastName, lastName);
+    e->pNext = NULL;
     return e;
 }
