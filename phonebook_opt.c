@@ -5,7 +5,7 @@
 
 
 /* FILL YOUR OWN IMPLEMENTATION HERE! */
-#if defined(MEM_POOL)
+#if defined(USE_MEM_POOL)
 extern unsigned int line_count;
 
 entry *createMemoryPool(unsigned int size)
@@ -17,12 +17,12 @@ entry *findName(char lastName[], entry *pHead)
 {
     unsigned int i = 0;
 
-    if(line_count >= MAX_MEM_POOL_SIZE)
+    if (line_count >= MAX_USE_MEM_POOL_SIZE)
         return NULL;
 
     while (i < line_count) {
-        if (strcasecmp(lastName, (pHead+i)->lastName) == 0) {
-            return (pHead+i);
+        if (strcasecmp(lastName, (pHead + i)->lastName) == 0) {
+            return (pHead + i);
         }
         i++;
     }

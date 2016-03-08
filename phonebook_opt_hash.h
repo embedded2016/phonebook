@@ -19,10 +19,6 @@
 #define BUCKET_UNIT 7919
 #endif
 
-#if defined(MEM_POOL)
-#define MAX_MEM_POOL_SIZE 1000
-#endif
-
 #ifdef THREAD
 
 #if 1
@@ -38,6 +34,9 @@ extern char buf[MAX_BUFFER_SIZE][MAX_LAST_NAME_SIZE];
 #else /* else of THREAD */
 
 #define HASH_TABLE_BUCKET BUCKET_UNIT
+#if defined(USE_MEM_POOL)
+#define MAX_USE_MEM_POOL_SIZE 1000
+#endif
 
 #endif /* end of THREAD */
 
@@ -64,7 +63,7 @@ typedef struct hashEntry_s {
     unsigned int key;
     unsigned int slot;
 #endif
-#if defined(MEM_POOL)
+#if defined(USE_MEM_POOL)
     entry *pool;
     unsigned int pool_count;
 #else
@@ -83,6 +82,9 @@ typedef struct hashTable_s {
     unsigned int bucketSize;
 #endif
     unsigned int tableSize;
+#if defined(USE_MEM_POOL)
+    unsigned int poolSize;
+#endif
 } hashTable_t;
 
 #ifdef THREAD

@@ -1,9 +1,9 @@
 CC ?= gcc
-CFLAGS_common ?= -Wall -std=gnu99 -DRUN_TEST
+CFLAGS_common ?= -Wall -std=gnu99 -g
 CFLAGS_orig = -O0
-CFLAGS_opt  = -O0
-CFLAGS_opt_hash1  = -O0 -DHASH_1
-CFLAGS_opt_hash2  = -O0 -DHASH_2
+CFLAGS_opt  = -O0 -DUSE_MEM_POOL
+CFLAGS_opt_hash1  = -O0 -DHASH_1 -DUSE_MEM_POOL
+CFLAGS_opt_hash2  = -O0 -DHASH_2 -DUSE_MEM_POOL
 CFLAGS_opt_thread  = -O0 -pthread -DHASH_1 -DTHREAD
 CFLAGS_opt_thread2  = -O0 -pthread -DHASH_2 -DTHREAD -DTHD2
 

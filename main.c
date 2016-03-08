@@ -13,7 +13,7 @@
 
 #define DICT_FILE "./dictionary/words.txt"
 
-#if defined(MEM_POOL)
+#if defined(USE_MEM_POOL)
 unsigned int line_count = 0;
 #endif
 
@@ -72,8 +72,8 @@ int main(int argc, char *argv[])
     }
 
 #if defined(HASH1) || defined(HASH2)
-#if defined(MEM_POOL)
-    initHashTable(HASH_TABLE_BUCKET, MAX_MEM_POOL_SIZE);
+#if defined(USE_MEM_POOL)
+    initHashTable(HASH_TABLE_BUCKET, MAX_USE_MEM_POOL_SIZE);
 #else
     initHashTable(HASH_TABLE_BUCKET, 0);
 #endif
@@ -82,8 +82,8 @@ int main(int argc, char *argv[])
     /* build the entry */
     entry *pHead, *e;
 
-#if defined(MEM_POOL) && defined(OPT)
-    pHead = createMemoryPool(MAX_MEM_POOL_SIZE);
+#if defined(USE_MEM_POOL) && defined(OPT)
+    pHead = createMemoryPool(MAX_USE_MEM_POOL_SIZE);
 #else
     pHead = (entry *) malloc(sizeof(entry));
 #endif
@@ -96,15 +96,15 @@ int main(int argc, char *argv[])
 #endif
 #ifdef THREAD
     clock_gettime(CLOCK_REALTIME, &start);
-    while (fgets((char *) &(buf[buf_line]), MAX_LAST_NAME_SIZE, fp)) {
+    while (fgets((char *) & (buf[buf_line]), MAX_LAST_NAME_SIZE, fp)) {
         while (buf[buf_line][i] != '\0')
             i++;
         buf[buf_line][i - 1] = '\0';
         i = 0;
         buf_line++;
 
-        if((buf_line % LINE_H) == 0) {
-            if(thd_index >= NUM_OF_THREADS) {
+        if ((buf_line % LINE_H) == 0) {
+            if (thd_index >= NUM_OF_THREADS) {
                 thd_index = 0;
                 for (j = 0; j < NUM_OF_THREADS; j++) {
                     pthread_join(threads[j], &tret);
@@ -119,8 +119,8 @@ int main(int argc, char *argv[])
         }
     }
 
-    if((buf_line % LINE_H) != 0) {
-        if(thd_index >= NUM_OF_THREADS) {
+    if ((buf_line % LINE_H) != 0) {
+        if (thd_index >= NUM_OF_THREADS) {
             thd_index = 0;
             pthread_join(threads[thd_index], &tret);
         }
@@ -139,16 +139,12 @@ int main(int argc, char *argv[])
 #else /* else of THREAD */
     clock_gettime(CLOCK_REALTIME, &start);
     while (fgets(line, sizeof(line), fp)) {
-#if defined(MEM_POOL)
-        if(line_count >= MAX_MEM_POOL_SIZE)
-            exit(1);
-#endif
         while (line[i] != '\0')
             i++;
         line[i - 1] = '\0';
         i = 0;
         e = append(line, e);
-#if defined(MEM_POOL)
+#if defined(USE_MEM_POOL)
         line_count++;
 #endif
     }
