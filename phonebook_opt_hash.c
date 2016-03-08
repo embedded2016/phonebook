@@ -40,12 +40,18 @@ unsigned int hash2(char *key, hashTable_t *ht)
 pthread_mutex_t mutex = PTHREAD_MUTEX_INITIALIZER;
 #endif
 
-void initHashTable()
+void initHashTable(unsigned int bucket_size, unsigned int pool_size)
 {
 #ifndef THREAD
-    hashTable.bucket = malloc(sizeof(hashEntry_t) * HASH_TABLE_BUCKET);
+    hashTable.bucket = malloc(sizeof(hashEntry_t) * bucket_size);
+#if defined(MEM_POOL)
+    for(int i = 0; i<bucket_size; i++) {
+        (hashTable.bucket+i)->pool = malloc(sizeof(entry) * pool_size);
+        (hashTable.bucket+i)->pool_size = 0;
+    }
 #endif
-    hashTable.tableSize = HASH_TABLE_BUCKET;
+#endif
+    hashTable.tableSize = bucket_size;
 #ifdef DEBUG
     hashTable.bucketSize = 0;
 #endif

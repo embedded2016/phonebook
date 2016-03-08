@@ -13,6 +13,10 @@
 
 #define DICT_FILE "./dictionary/words.txt"
 
+#if defined(MEM_POOL)
+unsigned int line_count = 0;
+#endif
+
 #ifdef RUN_TEST
 void runTest(entry *pHead);
 #endif
@@ -68,12 +72,21 @@ int main(int argc, char *argv[])
     }
 
 #if defined(HASH1) || defined(HASH2)
-    initHashTable();
+#if defined(MEM_POOL)
+    initHashTable(HASH_TABLE_BUCKET, MAX_MEM_POOL_SIZE);
+#else
+    initHashTable(HASH_TABLE_BUCKET, 0);
+#endif
 #endif
 
     /* build the entry */
     entry *pHead, *e;
+
+#if defined(MEM_POOL) && defined(OPT)
+    pHead = createMemoryPool(MAX_MEM_POOL_SIZE);
+#else
     pHead = (entry *) malloc(sizeof(entry));
+#endif
     printf("size of entry : %lu bytes\n", sizeof(entry));
     e = pHead;
     e->pNext = NULL;
@@ -126,11 +139,18 @@ int main(int argc, char *argv[])
 #else /* else of THREAD */
     clock_gettime(CLOCK_REALTIME, &start);
     while (fgets(line, sizeof(line), fp)) {
+#if defined(MEM_POOL)
+        if(line_count >= MAX_MEM_POOL_SIZE)
+            exit(1);
+#endif
         while (line[i] != '\0')
             i++;
         line[i - 1] = '\0';
         i = 0;
         e = append(line, e);
+#if defined(MEM_POOL)
+        line_count++;
+#endif
     }
     clock_gettime(CLOCK_REALTIME, &end);
     cpu_time1 = diff_in_second(start, end);

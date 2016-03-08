@@ -19,7 +19,12 @@
 #define BUCKET_UNIT 7919
 #endif
 
+#if defined(MEM_POOL)
+#define MAX_MEM_POOL_SIZE 1000
+#endif
+
 #ifdef THREAD
+
 #if 1
 #define NUM_OF_THREADS 4
 #else
@@ -29,8 +34,11 @@
 #define MAX_BUFFER_SIZE 400000
 #define LINE_H 10000
 extern char buf[MAX_BUFFER_SIZE][MAX_LAST_NAME_SIZE];
+
 #else /* else of THREAD */
+
 #define HASH_TABLE_BUCKET BUCKET_UNIT
+
 #endif /* end of THREAD */
 
 typedef struct phoneBook_s {
@@ -56,8 +64,13 @@ typedef struct hashEntry_s {
     unsigned int key;
     unsigned int slot;
 #endif
+#if defined(MEM_POOL)
+    entry *pool;
+    unsigned int pool_count;
+#else
     entry *pHead;
     entry *pTail;
+#endif
 } hashEntry_t;
 
 typedef struct hashTable_s {
@@ -88,7 +101,7 @@ entry *append(char lastName[], entry *e);
 #endif
 
 #if defined(HASH1) || defined(HASH2)
-void initHashTable();
+void initHashTable(unsigned int bucket_size, unsigned int pool_size);
 void freeHashTable();
 #endif
 
