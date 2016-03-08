@@ -16,7 +16,7 @@
 #if 0
 #define BUCKET_UNIT 42737
 #else
-#define BUCKET_UNIT /*7919*/ 1000
+#define BUCKET_UNIT 7919
 #endif
 
 #ifdef THREAD
@@ -35,7 +35,7 @@ extern char buf[MAX_BUFFER_SIZE][MAX_LAST_NAME_SIZE];
 
 #define HASH_TABLE_BUCKET BUCKET_UNIT
 #if defined(USE_MEM_POOL)
-#define MAX_USE_MEM_POOL_SIZE 1000
+#define MAX_USE_MEM_POOL_SIZE 2000
 #endif
 
 #endif /* end of THREAD */

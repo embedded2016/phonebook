@@ -1,5 +1,7 @@
 #include <stdlib.h>
 #include <string.h>
+#include <assert.h>
+
 
 #ifdef THREAD
 #include <pthread.h>
@@ -49,7 +51,7 @@ void initHashTable(unsigned int bucket_size, unsigned int pool_size)
 #if defined(USE_MEM_POOL)
     hashTable.poolSize = pool_size;
 
-#if 1 /* Evan: TEST */
+#if 0 /* Evan: TEST */
     printf("\r\n(%s:%d) ---> bucket_size=%d, pool_size=%d, poolSize=%d, bucket=%p", __FUNCTION__, __LINE__,
            bucket_size,
            pool_size,
@@ -60,11 +62,11 @@ void initHashTable(unsigned int bucket_size, unsigned int pool_size)
     for (int i = 0; i < bucket_size; i++) {
         (hashTable.bucket + i)->pool = (entry *)malloc(sizeof(entry) * hashTable.poolSize);
         (hashTable.bucket + i)->pool_count = 0;
-#if 1 /* Evan: TEST */
-printf("\r\n(%s:%d) ---> i=%d, bucket=%p, pool=%p", __FUNCTION__, __LINE__,
-i,
-(hashTable.bucket + i),
-(hashTable.bucket + i)->pool);
+#if 0 /* Evan: TEST */
+        printf("\r\n(%s:%d) ---> i=%d, bucket=%p, pool=%p", __FUNCTION__, __LINE__,
+               i,
+               (hashTable.bucket + i),
+               (hashTable.bucket + i)->pool);
 #endif
     }
 #endif
@@ -81,21 +83,21 @@ void freeHashTable()
 #if defined(USE_MEM_POOL)
     int i = 0;
 
-#if 1 /* Evan: TEST */
-printf("\r\n(%s:%d) ---> tableSize=%d, bucket=%p", __FUNCTION__, __LINE__,
-hashTable.tableSize,
-hashTable.bucket);
+#if 0 /* Evan: TEST */
+    printf("\r\n(%s:%d) ---> tableSize=%d, bucket=%p", __FUNCTION__, __LINE__,
+           hashTable.tableSize,
+           hashTable.bucket);
 #endif
 
     for (i = 0; i < hashTable.tableSize; i++) {
-#if 1 /* Evan: TEST */
-      printf("\r\n(%s:%d) ---> i=%d, bucket=%p, pool=%p", __FUNCTION__, __LINE__,
-      i,
-      (hashTable.bucket + i),
-      (hashTable.bucket + i)->pool);
+#if 0 /* Evan: TEST */
+        printf("\r\n(%s:%d) ---> i=%d, bucket=%p, pool=%p", __FUNCTION__, __LINE__,
+               i,
+               (hashTable.bucket + i),
+               (hashTable.bucket + i)->pool);
 #endif
-        free((hashTable.bucket+i)->pool);
-//        (hashTable.bucket+i)->pool = NULL;
+        free((hashTable.bucket + i)->pool);
+        (hashTable.bucket + i)->pool = NULL;
     }
 #endif
 
@@ -171,22 +173,22 @@ entry *findName(char lastName[], entry *e)
 
 #if defined(USE_MEM_POOL)
 #if 1
-printf("\r\n(%s:%d) ---> lastName=(%s), key=%d, bucketSize=%d, pool_count=%d", __FUNCTION__, __LINE__,
-lastName,
-key,
-hashTable.bucketSize,           
-hash->pool_count);
+    printf("\r\n(%s:%d) ---> lastName=(%s), key=%d, bucketSize=%d, pool_count=%d", __FUNCTION__, __LINE__,
+           lastName,
+           key,
+           hashTable.bucketSize,
+           hash->pool_count);
 #endif
 
     unsigned int i = 0;
     while (i <= hash->pool_count) {
 #if 0
-printf("\r\n(%s:%d) ---> i=%d, lastName=(%s)", __FUNCTION__, __LINE__,
-i,
-(hash->pool+ i)->lastName);
+        printf("\r\n(%s:%d) ---> i=%d, lastName=(%s)", __FUNCTION__, __LINE__,
+               i,
+               (hash->pool + i)->lastName);
 #endif
-        if (strcasecmp(lastName, (hash->pool+i)->lastName) == 0) {
-            return (hash->pool+i);
+        if (strcasecmp(lastName, (hash->pool + i)->lastName) == 0) {
+            return (hash->pool + i);
         }
         i++;
     }
@@ -217,27 +219,29 @@ entry *append(char lastName[], entry *e)
            key);
 #endif
 #if 1
-if(hash->pool_count == 0)
-{
-/*
-printf("\r\n(%s:%d) ---> bucketSize=%d, key=%d", __FUNCTION__, __LINE__,
-hashTable.bucketSize,
-key);
-*/
+    if (hash->pool_count == 0) {
+        /*
+        printf("\r\n(%s:%d) ---> bucketSize=%d, key=%d", __FUNCTION__, __LINE__,
+        hashTable.bucketSize,
+        key);
+        */
 #ifdef DEBUG
         hashTable.bucketSize++;
+        assert(hashTable.bucketSize <= HASH_TABLE_BUCKET);
 #endif
-}
+    }
 #endif
-    strcpy((hash->pool+(hash->pool_count))->lastName, lastName);
+    strcpy((hash->pool + (hash->pool_count))->lastName, lastName);
 #if 0
-printf("\r\n(%s:%d) ---> key=%d, pool_count=%d, lastName=(%s)", __FUNCTION__, __LINE__,
-key,
-hash->pool_count,
-(hash->pool+(hash->pool_count))->lastName);
+    printf("\r\n(%s:%d) ---> key=%d, pool_count=%d, lastName=(%s)", __FUNCTION__, __LINE__,
+           key,
+           hash->pool_count,
+           (hash->pool + (hash->pool_count))->lastName);
 #endif
-    e = (hash->pool+(hash->pool_count));
+    e = (hash->pool + (hash->pool_count));
     hash->pool_count++;
+    assert(hash->pool_count < MAX_USE_MEM_POOL_SIZE);
+
     return e;
 #else
     e = (entry *) malloc(sizeof(entry));
