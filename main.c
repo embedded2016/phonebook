@@ -204,8 +204,10 @@ int main(int argc, char *argv[])
     if (pHead->pNext) free(pHead->pNext);
     free(pHead);
 
+#if 1
 #if defined(HASH1) || defined(HASH2)
     freeHashTable();
+#endif
 #endif
 
     clock_gettime(CLOCK_REALTIME, &end1);

@@ -43,24 +43,33 @@ pthread_mutex_t mutex = PTHREAD_MUTEX_INITIALIZER;
 void initHashTable(unsigned int bucket_size, unsigned int pool_size)
 {
     hashTable.tableSize = bucket_size;
+
 #ifndef THREAD
     hashTable.bucket = malloc(sizeof(hashEntry_t) * bucket_size);
 #if defined(USE_MEM_POOL)
     hashTable.poolSize = pool_size;
 
 #if 1 /* Evan: TEST */
-    printf("\r\n(%s:%d) ---> bucket_size=%d, pool_size=%d, poolSize=%d", __FUNCTION__, __LINE__,
+    printf("\r\n(%s:%d) ---> bucket_size=%d, pool_size=%d, poolSize=%d, bucket=%p", __FUNCTION__, __LINE__,
            bucket_size,
            pool_size,
-           hashTable.poolSize);
+           hashTable.poolSize,
+           hashTable.bucket);
 #endif
 
     for (int i = 0; i < bucket_size; i++) {
-        (hashTable.bucket + i)->pool = malloc(sizeof(entry) * hashTable.poolSize);
+        (hashTable.bucket + i)->pool = (entry *)malloc(sizeof(entry) * hashTable.poolSize);
         (hashTable.bucket + i)->pool_count = 0;
+#if 1 /* Evan: TEST */
+printf("\r\n(%s:%d) ---> i=%d, bucket=%p, pool=%p", __FUNCTION__, __LINE__,
+i,
+(hashTable.bucket + i),
+(hashTable.bucket + i)->pool);
+#endif
     }
 #endif
 #endif
+
 #ifdef DEBUG
     hashTable.bucketSize = 0;
 #endif
@@ -70,11 +79,26 @@ void freeHashTable()
 {
 #ifndef THREAD
 #if defined(USE_MEM_POOL)
-    for (int i = 0; i < hashTable.tableSize; i++) {
-        free(((hashTable.bucket) + i)->pool);
-        ((hashTable.bucket) + i)->pool = NULL;
+    int i = 0;
+
+#if 1 /* Evan: TEST */
+printf("\r\n(%s:%d) ---> tableSize=%d, bucket=%p", __FUNCTION__, __LINE__,
+hashTable.tableSize,
+hashTable.bucket);
+#endif
+
+    for (i = 0; i < hashTable.tableSize; i++) {
+#if 1 /* Evan: TEST */
+      printf("\r\n(%s:%d) ---> i=%d, bucket=%p, pool=%p", __FUNCTION__, __LINE__,
+      i,
+      (hashTable.bucket + i),
+      (hashTable.bucket + i)->pool);
+#endif
+        free((hashTable.bucket+i)->pool);
+//        (hashTable.bucket+i)->pool = NULL;
     }
 #endif
+
     free(hashTable.bucket);
     hashTable.bucket = NULL;
 #endif
@@ -146,22 +170,23 @@ entry *findName(char lastName[], entry *e)
     hash = (hashTable.bucket) + key;
 
 #if defined(USE_MEM_POOL)
-#if 0
-    printf("\r\n(%s:%d) ---> lastName=(%s), key=%d, pool_count=%d", __FUNCTION__, __LINE__,
-           lastName,
-           key,
-           hash->pool_count);
+#if 1
+printf("\r\n(%s:%d) ---> lastName=(%s), key=%d, bucketSize=%d, pool_count=%d", __FUNCTION__, __LINE__,
+lastName,
+key,
+hashTable.bucketSize,           
+hash->pool_count);
 #endif
 
     unsigned int i = 0;
     while (i <= hash->pool_count) {
 #if 0
-        printf("\r\n(%s:%d) ---> i=%d, lastName=(%s)", __FUNCTION__, __LINE__,
-               i,
-               ((hash->pool) + i)->lastName);
+printf("\r\n(%s:%d) ---> i=%d, lastName=(%s)", __FUNCTION__, __LINE__,
+i,
+(hash->pool+ i)->lastName);
 #endif
-        if (strcasecmp(lastName, ((hash->pool) + i)->lastName) == 0) {
-            return ((hash->pool) + i);
+        if (strcasecmp(lastName, (hash->pool+i)->lastName) == 0) {
+            return (hash->pool+i);
         }
         i++;
     }
@@ -191,17 +216,29 @@ entry *append(char lastName[], entry *e)
     printf("\r\n(%s:%d) ---> key=%d", __FUNCTION__, __LINE__,
            key);
 #endif
-
-    hash->pool_count++;
-    strcpy(((hash->pool) + (hash->pool_count))->lastName, lastName);
 #if 1
-    printf("\r\n(%s:%d) ---> key=%d, pool_count=%d, lastName=(%s)", __FUNCTION__, __LINE__,
-           key,
-           hash->pool_count,
-           ((hash->pool) + (hash->pool_count))->lastName);
+if(hash->pool_count == 0)
+{
+/*
+printf("\r\n(%s:%d) ---> bucketSize=%d, key=%d", __FUNCTION__, __LINE__,
+hashTable.bucketSize,
+key);
+*/
+#ifdef DEBUG
+        hashTable.bucketSize++;
 #endif
-    return ((hash->pool) + (hash->pool_count));
-
+}
+#endif
+    strcpy((hash->pool+(hash->pool_count))->lastName, lastName);
+#if 0
+printf("\r\n(%s:%d) ---> key=%d, pool_count=%d, lastName=(%s)", __FUNCTION__, __LINE__,
+key,
+hash->pool_count,
+(hash->pool+(hash->pool_count))->lastName);
+#endif
+    e = (hash->pool+(hash->pool_count));
+    hash->pool_count++;
+    return e;
 #else
     e = (entry *) malloc(sizeof(entry));
     e->pNext = NULL;
