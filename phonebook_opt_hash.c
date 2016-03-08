@@ -1,5 +1,7 @@
 #include <stdlib.h>
 #include <string.h>
+
+#include <stdio.h>
 #include <assert.h>
 
 
@@ -213,22 +215,10 @@ entry *append(char lastName[], entry *e)
     hash = ((hashTable.bucket) + key);
 
 #if defined(USE_MEM_POOL)
-
-#if 0
-    printf("\r\n(%s:%d) ---> key=%d", __FUNCTION__, __LINE__,
-           key);
-#endif
-#if 1
-    if (hash->pool_count == 0) {
-        /*
-        printf("\r\n(%s:%d) ---> bucketSize=%d, key=%d", __FUNCTION__, __LINE__,
-        hashTable.bucketSize,
-        key);
-        */
 #ifdef DEBUG
+    if (hash->pool_count == 0) {
         hashTable.bucketSize++;
         assert(hashTable.bucketSize <= HASH_TABLE_BUCKET);
-#endif
     }
 #endif
     strcpy((hash->pool + (hash->pool_count))->lastName, lastName);
@@ -240,7 +230,7 @@ entry *append(char lastName[], entry *e)
 #endif
     e = (hash->pool + (hash->pool_count));
     hash->pool_count++;
-    assert(hash->pool_count < MAX_USE_MEM_POOL_SIZE);
+    assert(hash->pool_count <= MAX_USE_MEM_POOL_SIZE);
 
     return e;
 #else
