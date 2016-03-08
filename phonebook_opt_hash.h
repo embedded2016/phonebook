@@ -34,11 +34,13 @@ extern char buf[MAX_BUFFER_SIZE][MAX_LAST_NAME_SIZE];
 #else /* else of THREAD */
 
 #define HASH_TABLE_BUCKET BUCKET_UNIT
+
+#endif /* end of THREAD */
+
 #if defined(USE_MEM_POOL)
 #define MAX_USE_MEM_POOL_SIZE 2000
 #endif
 
-#endif /* end of THREAD */
 
 typedef struct phoneBook_s {
     char firstName[16];
@@ -74,7 +76,8 @@ typedef struct hashEntry_s {
 
 typedef struct hashTable_s {
 #ifdef THREAD
-    hashEntry_t bucket[NUM_OF_THREADS][HASH_TABLE_BUCKET];
+//    hashEntry_t bucket[NUM_OF_THREADS][HASH_TABLE_BUCKET];
+    hashEntry_t *bucket[NUM_OF_THREADS];
 #else
     hashEntry_t *bucket;
 #endif
