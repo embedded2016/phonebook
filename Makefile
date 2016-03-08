@@ -4,8 +4,8 @@ CFLAGS_orig = -O0
 CFLAGS_opt  = -O0
 CFLAGS_opt_hash1  = -O0 -DHASH_1
 CFLAGS_opt_hash2  = -O0 -DHASH_2
-CFLAGS_opt_thread  = -O0 -pthread -DHASH_1 -DTHREAD
-CFLAGS_opt_thread2  = -O0 -pthread -DHASH_2 -DTHREAD -DTHD2
+CFLAGS_opt_thread  = $(CFLAGS_opt_hash1) -pthread -DTHREAD
+CFLAGS_opt_thread2  = $(CFLAGS_opt_hash2) -pthread -DTHREAD -DTHD2
 
 EXEC = phonebook_orig phonebook_opt \
 		phonebook_opt_hash1 phonebook_opt_hash2 \
