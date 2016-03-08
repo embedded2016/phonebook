@@ -13,10 +13,6 @@
 
 #define DICT_FILE "./dictionary/words.txt"
 
-#if defined(USE_MEM_POOL)
-unsigned int line_count = 0;
-#endif
-
 #ifdef RUN_TEST
 void runTest(entry *pHead);
 #endif
@@ -130,6 +126,12 @@ int main(int argc, char *argv[])
         pthread_create(&threads[thd_index], NULL, processArray, (void *)&thread_data[thd_index]);
     }
 
+#if 1 /* Evan: TEST */
+    printf("\r\n(%s:%d)---> NUM_OF_THREADS=%d, thd_index=%d", __FUNCTION__, __LINE__,
+           NUM_OF_THREADS,
+           thd_index);
+#endif
+
     for (j = 0; j < NUM_OF_THREADS; j++) {
         pthread_join(threads[j], &tret);
     }
@@ -144,9 +146,6 @@ int main(int argc, char *argv[])
         line[i - 1] = '\0';
         i = 0;
         e = append(line, e);
-#if defined(USE_MEM_POOL)
-        line_count++;
-#endif
     }
     clock_gettime(CLOCK_REALTIME, &end);
     cpu_time1 = diff_in_second(start, end);

@@ -1,15 +1,17 @@
 #include <stdlib.h>
 #include <string.h>
+#include <assert.h>
 
 #include "phonebook_opt.h"
 
 
 /* FILL YOUR OWN IMPLEMENTATION HERE! */
 #if defined(USE_MEM_POOL)
-extern unsigned int line_count;
+static unsigned int line_count = 0;
 
 entry *createMemoryPool(unsigned int size)
 {
+    line_count = 0;
     return (entry *)malloc(sizeof(entry) * size);
 }
 
@@ -17,9 +19,7 @@ entry *findName(char lastName[], entry *pHead)
 {
     unsigned int i = 0;
 
-    if (line_count >= MAX_USE_MEM_POOL_SIZE)
-        return NULL;
-
+    i = 0;
     while (i < line_count) {
         if (strcasecmp(lastName, (pHead + i)->lastName) == 0) {
             return (pHead + i);
@@ -33,6 +33,8 @@ entry *append(char lastName[], entry *e)
 {
     e++;
     strcpy(e->lastName, lastName);
+    line_count++;
+    assert(line_count <= MAX_USE_MEM_POOL_SIZE);
     return e;
 }
 #else

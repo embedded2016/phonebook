@@ -1,10 +1,10 @@
 CC ?= gcc
-CFLAGS_common ?= -Wall -std=gnu99 -g -DRUN_TEST
+CFLAGS_common ?= -Wall -std=gnu99 -DRUN_TEST -g
 CFLAGS_orig = -O0
-CFLAGS_opt  = -O0
-CFLAGS_opt_hash1  = -O0 -DHASH_1
-CFLAGS_opt_hash2  = -O0 -DHASH_2
-CFLAGS_opt_thread  = $(CFLAGS_opt_hash1) -pthread -DTHREAD
+CFLAGS_opt  = -O0 -DUSE_MEM_POOL
+CFLAGS_opt_hash1  = $(CFLAGS_opt) -DHASH_1
+CFLAGS_opt_hash2  = $(CFLAGS_opt) -DHASH_2
+CFLAGS_opt_thread1  = $(CFLAGS_opt_hash1) -pthread -DTHREAD
 CFLAGS_opt_thread2  = $(CFLAGS_opt_hash2) -pthread -DTHREAD -DTHD2
 
 EXEC = phonebook_orig phonebook_opt \
@@ -38,7 +38,7 @@ phonebook_opt_hash2: $(SRCS_common) phonebook_opt_hash.c phonebook_opt_hash.h
 		$(SRCS_common) $(SRC_HASH).c
 
 phonebook_opt_thread1: $(SRCS_common) phonebook_opt_hash.c phonebook_opt_hash.h
-	$(CC) $(CFLAGS_common) $(CFLAGS_opt_thread) \
+	$(CC) $(CFLAGS_common) $(CFLAGS_opt_thread1) \
 		-DIMPL="\"$(SRC_HASH).h\"" -o $@ \
 		$(SRCS_common) $(SRC_HASH).c
 
