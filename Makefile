@@ -1,15 +1,16 @@
 CC ?= gcc
 CFLAGS_common ?= -Wall -std=gnu99 -g -DRUN_TEST
 CFLAGS_orig = -O0
-CFLAGS_opt  = -O0 -DUSE_MEM_POOL
-CFLAGS_opt_hash1  = -O0 -DHASH_1 -DUSE_MEM_POOL -DDEBUG
-CFLAGS_opt_hash2  = -O0 -DHASH_2 -DUSE_MEM_POOL -DDEBUG
-CFLAGS_opt_thread  = -O0 -pthread -DHASH_1 -DTHREAD  -DUSE_MEM_POOL -DDEBUG
-CFLAGS_opt_thread2  = -O0 -pthread -DHASH_2 -DTHREAD -DTHD2 -DUSE_MEM_POOL -DDEBUG
+CFLAGS_opt  = -O0
+CFLAGS_opt_hash1  = -O0 -DHASH_1
+CFLAGS_opt_hash2  = -O0 -DHASH_2
+CFLAGS_opt_thread  = -O0 -pthread -DHASH_1 -DTHREAD
+CFLAGS_opt_thread2  = -O0 -pthread -DHASH_2 -DTHREAD -DTHD2
 
 EXEC = phonebook_orig phonebook_opt \
 		phonebook_opt_hash1 phonebook_opt_hash2 \
 		phonebook_opt_thread1 phonebook_opt_thread2
+
 all: $(EXEC)
 
 SRCS_common = main.c
@@ -96,28 +97,6 @@ cache-test: $(EXEC)
 	echo 1 | sudo tee /proc/sys/vm/drop_caches
 	perf stat --repeat 100 \
 		-e cache-misses,cache-references,instructions,cycles,branches,branch-misses \
-		./phonebook_opt_thread2 1>/dev/null
-
-test1: $(EXEC)
-	@rm -f *.txt
-	sudo sh -c " echo 0 > /proc/sys/kernel/kptr_restrict"
-	echo 1 | sudo tee /proc/sys/vm/drop_caches
-	perf stat --repeat 100 \
-		./phonebook_orig 1>/dev/null
-	echo 1 | sudo tee /proc/sys/vm/drop_caches
-	perf stat --repeat 100 \
-		./phonebook_opt 1>/dev/null
-	echo 1 | sudo tee /proc/sys/vm/drop_caches
-	perf stat --repeat 100 \
-		./phonebook_opt_hash1 1>/dev/null
-	echo 1 | sudo tee /proc/sys/vm/drop_caches
-	perf stat --repeat 100 \
-		./phonebook_opt_hash2 1>/dev/null
-	echo 1 | sudo tee /proc/sys/vm/drop_caches
-	perf stat --repeat 100 \
-		./phonebook_opt_thread1 1>/dev/null
-	echo 1 | sudo tee /proc/sys/vm/drop_caches
-	perf stat --repeat 100 \
 		./phonebook_opt_thread2 1>/dev/null
 
 cc:

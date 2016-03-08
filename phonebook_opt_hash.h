@@ -56,15 +56,11 @@ typedef struct phoneBook_s {
 
 typedef struct __PHONE_BOOK_ENTRY {
     char lastName[MAX_LAST_NAME_SIZE];
-    phoneBook_t *pNode;
+    phoneBook_t *phoneBook;
     struct __PHONE_BOOK_ENTRY *pNext;
 } entry;
 
 typedef struct hashEntry_s {
-#ifdef DEBUG
-    unsigned int key;
-    unsigned int slot;
-#endif
 #if defined(USE_MEM_POOL)
     entry *pool;
     unsigned int pool_count;
@@ -72,22 +68,34 @@ typedef struct hashEntry_s {
     entry *pHead;
     entry *pTail;
 #endif
+
+#ifdef DEBUG
+    unsigned int slot;
+#endif
 } hashEntry_t;
 
 typedef struct hashTable_s {
-#ifdef THREAD
-//    hashEntry_t bucket[NUM_OF_THREADS][HASH_TABLE_BUCKET];
-    hashEntry_t *bucket[NUM_OF_THREADS];
-#else
-    hashEntry_t *bucket;
-#endif
-#ifdef DEBUG
     unsigned int bucketSize;
-#endif
-    unsigned int tableSize;
+    unsigned int slotSize;
 #if defined(USE_MEM_POOL)
     unsigned int poolSize;
 #endif
+
+#ifdef THREAD
+//    hashEntry_t bucket[NUM_OF_THREADS][HASH_TABLE_BUCKET];
+    hashEntry_t *bucket[NUM_OF_THREADS];
+
+#ifdef DEBUG
+    unsigned int activeBuckets[NUM_OF_THREADS];
+#endif
+#else
+    hashEntry_t *bucket;
+
+#ifdef DEBUG
+    unsigned int activeBuckets;
+#endif
+#endif
+
 } hashTable_t;
 
 #ifdef THREAD
