@@ -68,12 +68,26 @@ int main(int argc, char *argv[])
     }
 
 #if defined(HASH1) || defined(HASH2)
-    initHashTable();
+#if defined(USE_MEM_POOL)
+    initHashTable(HASH_TABLE_BUCKET, MAX_MEM_POOL_SIZE);
+#else
+    initHashTable(HASH_TABLE_BUCKET, 0);
+#endif
+#endif
+
+#ifdef THREAD
+    memset(threads, 0, (sizeof(pthread_t) * NUM_OF_THREADS));
+    memset(thread_data, 0, (sizeof(thread_data_t) * NUM_OF_THREADS));
 #endif
 
     /* build the entry */
     entry *pHead, *e;
+
+#if defined(USE_MEM_POOL) && defined(OPT)
+    pHead = createMemoryPool(MAX_MEM_POOL_SIZE);
+#else
     pHead = (entry *) malloc(sizeof(entry));
+#endif
     printf("size of entry : %lu bytes\n", sizeof(entry));
     e = pHead;
     e->pNext = NULL;
@@ -83,18 +97,19 @@ int main(int argc, char *argv[])
 #endif
 #ifdef THREAD
     clock_gettime(CLOCK_REALTIME, &start);
-    while (fgets((char *) &(buf[buf_line]), MAX_LAST_NAME_SIZE, fp)) {
+    while (fgets((char *) & (buf[buf_line]), MAX_LAST_NAME_SIZE, fp)) {
         while (buf[buf_line][i] != '\0')
             i++;
         buf[buf_line][i - 1] = '\0';
         i = 0;
         buf_line++;
 
-        if((buf_line % LINE_H) == 0) {
-            if(thd_index >= NUM_OF_THREADS) {
+        if ((buf_line % LINE_H) == 0) {
+            if (thd_index >= NUM_OF_THREADS) {
                 thd_index = 0;
                 for (j = 0; j < NUM_OF_THREADS; j++) {
-                    pthread_join(threads[j], &tret);
+                    if(threads[j])
+                        pthread_join(threads[j], &tret);
                 }
             }
             thread_data[thd_index].start = line_start * LINE_H;
@@ -106,8 +121,8 @@ int main(int argc, char *argv[])
         }
     }
 
-    if((buf_line % LINE_H) != 0) {
-        if(thd_index >= NUM_OF_THREADS) {
+    if ((buf_line % LINE_H) != 0) {
+        if (thd_index >= NUM_OF_THREADS) {
             thd_index = 0;
             pthread_join(threads[thd_index], &tret);
         }
@@ -118,7 +133,8 @@ int main(int argc, char *argv[])
     }
 
     for (j = 0; j < NUM_OF_THREADS; j++) {
-        pthread_join(threads[j], &tret);
+        if(threads[j])
+            pthread_join(threads[j], &tret);
     }
 
     clock_gettime(CLOCK_REALTIME, &end);
@@ -208,7 +224,7 @@ void runTest(entry *pHead)
     int i = 0;
     char test[9][MAX_LAST_NAME_SIZE] = {
         "uninvolved",
-        "zyxel",
+        "bucket",
         "whiteshank",
         "odontomous",
         "pungoteague",
@@ -234,7 +250,7 @@ void *processArray(void *args)
     entry *e = NULL;
 
     for (i = start; i < end; i++) {
-        e = append((char *) & (buf[i]), e, thd);
+        e = append((char *) &(buf[i]), e, thd);
     }
 
     pthread_exit(NULL);

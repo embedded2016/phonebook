@@ -6,6 +6,11 @@
 /* TODO: After modifying the original version, uncomment the following
  * line to set OPT properly */
 #define OPT 1
+
+#if defined(USE_MEM_POOL)
+#define MAX_MEM_POOL_SIZE 400000
+#endif
+
 typedef struct phoneBook_s {
     char firstName[16];
     char email[16];
@@ -26,5 +31,9 @@ typedef struct __PHONE_BOOK_ENTRY {
 
 entry *findName(char lastName[], entry *pHead);
 entry *append(char lastName[], entry *e);
+
+#if defined(USE_MEM_POOL)
+entry *createMemoryPool(unsigned int size);
+#endif
 
 #endif

@@ -20,7 +20,8 @@
 #endif
 
 #ifdef THREAD
-#if 1
+
+#if 0
 #define NUM_OF_THREADS 4
 #else
 #define NUM_OF_THREADS (MAX_BUFFER_SIZE/LINE_H + 1)
@@ -28,10 +29,16 @@
 #define HASH_TABLE_BUCKET ((BUCKET_UNIT / NUM_OF_THREADS) + 1)
 #define MAX_BUFFER_SIZE 400000
 #define LINE_H 10000
-extern char buf[MAX_BUFFER_SIZE][MAX_LAST_NAME_SIZE];
+
 #else /* else of THREAD */
+
 #define HASH_TABLE_BUCKET BUCKET_UNIT
+
 #endif /* end of THREAD */
+
+#if defined(USE_MEM_POOL)
+#define MAX_MEM_POOL_SIZE 2000
+#endif
 
 typedef struct phoneBook_s {
     char firstName[16];
@@ -47,29 +54,42 @@ typedef struct phoneBook_s {
 
 typedef struct __PHONE_BOOK_ENTRY {
     char lastName[MAX_LAST_NAME_SIZE];
-    phoneBook_t *pNode;
+    phoneBook_t *phoneBook;
     struct __PHONE_BOOK_ENTRY *pNext;
 } entry;
 
 typedef struct hashEntry_s {
-#ifdef DEBUG
-    unsigned int key;
-    unsigned int slot;
-#endif
+#if defined(USE_MEM_POOL)
+    entry *pool;
+    unsigned int pool_count;
+#else
     entry *pHead;
     entry *pTail;
+
+#ifdef DEBUG
+    unsigned int slot;
+#endif
+#endif
 } hashEntry_t;
 
 typedef struct hashTable_s {
+    unsigned int bucketSize;
+    unsigned int slotSize;
+#if defined(USE_MEM_POOL)
+    unsigned int poolSize;
+#endif
+
 #ifdef THREAD
-    hashEntry_t bucket[NUM_OF_THREADS][HASH_TABLE_BUCKET];
+    hashEntry_t *bucket[NUM_OF_THREADS];
+#ifdef DEBUG
+    unsigned int activeBuckets[NUM_OF_THREADS];
+#endif
 #else
     hashEntry_t *bucket;
-#endif
 #ifdef DEBUG
-    unsigned int bucketSize;
+    unsigned int activeBuckets;
 #endif
-    unsigned int tableSize;
+#endif
 } hashTable_t;
 
 #ifdef THREAD
@@ -88,7 +108,7 @@ entry *append(char lastName[], entry *e);
 #endif
 
 #if defined(HASH1) || defined(HASH2)
-void initHashTable();
+void initHashTable(unsigned int bucket_size, unsigned int pool_size);
 void freeHashTable();
 #endif
 

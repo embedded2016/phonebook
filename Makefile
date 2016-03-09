@@ -1,15 +1,17 @@
 CC ?= gcc
 CFLAGS_common ?= -Wall -std=gnu99 -DRUN_TEST
 CFLAGS_orig = -O0
-CFLAGS_opt  = -O0
-CFLAGS_opt_hash1  = -O0 -DHASH_1
-CFLAGS_opt_hash2  = -O0 -DHASH_2
-CFLAGS_opt_thread  = -O0 -pthread -DHASH_1 -DTHREAD
-CFLAGS_opt_thread2  = -O0 -pthread -DHASH_2 -DTHREAD -DTHD2
+CFLAGS_opt  = -O0 $(CFLAGS_pool)
+CFLAGS_opt_hash1  = $(CFLAGS_opt) -DHASH_1
+CFLAGS_opt_hash2  = $(CFLAGS_opt) -DHASH_2
+CFLAGS_opt_thread1  = $(CFLAGS_opt_hash1) -pthread -DTHREAD
+CFLAGS_opt_thread2  = $(CFLAGS_opt_hash2) -pthread -DTHREAD -DTHD2
+CFLAGS_pool = -DUSE_MEM_POOL
 
 EXEC = phonebook_orig phonebook_opt \
 		phonebook_opt_hash1 phonebook_opt_hash2 \
 		phonebook_opt_thread1 phonebook_opt_thread2
+
 all: $(EXEC)
 
 SRCS_common = main.c
@@ -37,7 +39,7 @@ phonebook_opt_hash2: $(SRCS_common) phonebook_opt_hash.c phonebook_opt_hash.h
 		$(SRCS_common) $(SRC_HASH).c
 
 phonebook_opt_thread1: $(SRCS_common) phonebook_opt_hash.c phonebook_opt_hash.h
-	$(CC) $(CFLAGS_common) $(CFLAGS_opt_thread) \
+	$(CC) $(CFLAGS_common) $(CFLAGS_opt_thread1) \
 		-DIMPL="\"$(SRC_HASH).h\"" -o $@ \
 		$(SRCS_common) $(SRC_HASH).c
 
@@ -96,28 +98,6 @@ cache-test: $(EXEC)
 	echo 1 | sudo tee /proc/sys/vm/drop_caches
 	perf stat --repeat 100 \
 		-e cache-misses,cache-references,instructions,cycles,branches,branch-misses \
-		./phonebook_opt_thread2 1>/dev/null
-
-test1: $(EXEC)
-	@rm -f *.txt
-	sudo sh -c " echo 0 > /proc/sys/kernel/kptr_restrict"
-	echo 1 | sudo tee /proc/sys/vm/drop_caches
-	perf stat --repeat 100 \
-		./phonebook_orig 1>/dev/null
-	echo 1 | sudo tee /proc/sys/vm/drop_caches
-	perf stat --repeat 100 \
-		./phonebook_opt 1>/dev/null
-	echo 1 | sudo tee /proc/sys/vm/drop_caches
-	perf stat --repeat 100 \
-		./phonebook_opt_hash1 1>/dev/null
-	echo 1 | sudo tee /proc/sys/vm/drop_caches
-	perf stat --repeat 100 \
-		./phonebook_opt_hash2 1>/dev/null
-	echo 1 | sudo tee /proc/sys/vm/drop_caches
-	perf stat --repeat 100 \
-		./phonebook_opt_thread1 1>/dev/null
-	echo 1 | sudo tee /proc/sys/vm/drop_caches
-	perf stat --repeat 100 \
 		./phonebook_opt_thread2 1>/dev/null
 
 cc:
