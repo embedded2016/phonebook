@@ -6,10 +6,9 @@
 /* TODO: After modifying the original version, uncomment the following
  * line to set OPT properly */
 #define OPT 1
-#define USE_MEM_POOL 1
 
 #if defined(USE_MEM_POOL)
-#define MAX_USE_MEM_POOL_SIZE 400000
+#define MAX_MEM_POOL_SIZE 400000
 #endif
 
 typedef struct phoneBook_s {

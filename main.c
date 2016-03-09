@@ -69,17 +69,22 @@ int main(int argc, char *argv[])
 
 #if defined(HASH1) || defined(HASH2)
 #if defined(USE_MEM_POOL)
-    initHashTable(HASH_TABLE_BUCKET, MAX_USE_MEM_POOL_SIZE);
+    initHashTable(HASH_TABLE_BUCKET, MAX_MEM_POOL_SIZE);
 #else
     initHashTable(HASH_TABLE_BUCKET, 0);
 #endif
+#endif
+
+#ifdef THREAD
+    memset(threads, 0, (sizeof(pthread_t) * NUM_OF_THREADS));
+    memset(thread_data, 0, (sizeof(thread_data_t) * NUM_OF_THREADS));
 #endif
 
     /* build the entry */
     entry *pHead, *e;
 
 #if defined(USE_MEM_POOL) && defined(OPT)
-    pHead = createMemoryPool(MAX_USE_MEM_POOL_SIZE);
+    pHead = createMemoryPool(MAX_MEM_POOL_SIZE);
 #else
     pHead = (entry *) malloc(sizeof(entry));
 #endif
@@ -103,7 +108,8 @@ int main(int argc, char *argv[])
             if (thd_index >= NUM_OF_THREADS) {
                 thd_index = 0;
                 for (j = 0; j < NUM_OF_THREADS; j++) {
-                    pthread_join(threads[j], &tret);
+                    if(threads[j])
+                        pthread_join(threads[j], &tret);
                 }
             }
             thread_data[thd_index].start = line_start * LINE_H;
@@ -126,14 +132,9 @@ int main(int argc, char *argv[])
         pthread_create(&threads[thd_index], NULL, processArray, (void *)&thread_data[thd_index]);
     }
 
-#if 1 /* Evan: TEST */
-    printf("\r\n(%s:%d)---> NUM_OF_THREADS=%d, thd_index=%d", __FUNCTION__, __LINE__,
-           NUM_OF_THREADS,
-           thd_index);
-#endif
-
     for (j = 0; j < NUM_OF_THREADS; j++) {
-        pthread_join(threads[j], &tret);
+        if(threads[j])
+            pthread_join(threads[j], &tret);
     }
 
     clock_gettime(CLOCK_REALTIME, &end);
@@ -203,10 +204,8 @@ int main(int argc, char *argv[])
     if (pHead->pNext) free(pHead->pNext);
     free(pHead);
 
-#if 1
 #if defined(HASH1) || defined(HASH2)
     freeHashTable();
-#endif
 #endif
 
     clock_gettime(CLOCK_REALTIME, &end1);
@@ -225,7 +224,7 @@ void runTest(entry *pHead)
     int i = 0;
     char test[9][MAX_LAST_NAME_SIZE] = {
         "uninvolved",
-        "zyxel",
+        "bucket",
         "whiteshank",
         "odontomous",
         "pungoteague",
@@ -251,7 +250,7 @@ void *processArray(void *args)
     entry *e = NULL;
 
     for (i = start; i < end; i++) {
-        e = append((char *) & (buf[i]), e, thd);
+        e = append((char *) &(buf[i]), e, thd);
     }
 
     pthread_exit(NULL);

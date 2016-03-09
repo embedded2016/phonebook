@@ -1,11 +1,12 @@
 CC ?= gcc
-CFLAGS_common ?= -Wall -std=gnu99 -DRUN_TEST -g
+CFLAGS_common ?= -Wall -std=gnu99 -DRUN_TEST
 CFLAGS_orig = -O0
-CFLAGS_opt  = -O0 -DUSE_MEM_POOL
+CFLAGS_opt  = -O0 $(CFLAGS_pool)
 CFLAGS_opt_hash1  = $(CFLAGS_opt) -DHASH_1
 CFLAGS_opt_hash2  = $(CFLAGS_opt) -DHASH_2
 CFLAGS_opt_thread1  = $(CFLAGS_opt_hash1) -pthread -DTHREAD
 CFLAGS_opt_thread2  = $(CFLAGS_opt_hash2) -pthread -DTHREAD -DTHD2
+CFLAGS_pool = -DUSE_MEM_POOL
 
 EXEC = phonebook_orig phonebook_opt \
 		phonebook_opt_hash1 phonebook_opt_hash2 \

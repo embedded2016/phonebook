@@ -21,7 +21,7 @@
 
 #ifdef THREAD
 
-#if 1
+#if 0
 #define NUM_OF_THREADS 4
 #else
 #define NUM_OF_THREADS (MAX_BUFFER_SIZE/LINE_H + 1)
@@ -29,7 +29,6 @@
 #define HASH_TABLE_BUCKET ((BUCKET_UNIT / NUM_OF_THREADS) + 1)
 #define MAX_BUFFER_SIZE 400000
 #define LINE_H 10000
-extern char buf[MAX_BUFFER_SIZE][MAX_LAST_NAME_SIZE];
 
 #else /* else of THREAD */
 
@@ -38,9 +37,8 @@ extern char buf[MAX_BUFFER_SIZE][MAX_LAST_NAME_SIZE];
 #endif /* end of THREAD */
 
 #if defined(USE_MEM_POOL)
-#define MAX_USE_MEM_POOL_SIZE 2000
+#define MAX_MEM_POOL_SIZE 2000
 #endif
-
 
 typedef struct phoneBook_s {
     char firstName[16];
@@ -67,10 +65,10 @@ typedef struct hashEntry_s {
 #else
     entry *pHead;
     entry *pTail;
-#endif
 
 #ifdef DEBUG
     unsigned int slot;
+#endif
 #endif
 } hashEntry_t;
 
@@ -82,20 +80,16 @@ typedef struct hashTable_s {
 #endif
 
 #ifdef THREAD
-//    hashEntry_t bucket[NUM_OF_THREADS][HASH_TABLE_BUCKET];
     hashEntry_t *bucket[NUM_OF_THREADS];
-
 #ifdef DEBUG
     unsigned int activeBuckets[NUM_OF_THREADS];
 #endif
 #else
     hashEntry_t *bucket;
-
 #ifdef DEBUG
     unsigned int activeBuckets;
 #endif
 #endif
-
 } hashTable_t;
 
 #ifdef THREAD

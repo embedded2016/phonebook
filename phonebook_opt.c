@@ -7,11 +7,11 @@
 
 /* FILL YOUR OWN IMPLEMENTATION HERE! */
 #if defined(USE_MEM_POOL)
-static unsigned int line_count = 0;
+static unsigned int buffer_count = 0;
 
 entry *createMemoryPool(unsigned int size)
 {
-    line_count = 0;
+    buffer_count = 0;
     return (entry *)malloc(sizeof(entry) * size);
 }
 
@@ -20,7 +20,7 @@ entry *findName(char lastName[], entry *pHead)
     unsigned int i = 0;
 
     i = 0;
-    while (i < line_count) {
+    while (i < buffer_count) {
         if (strcasecmp(lastName, (pHead + i)->lastName) == 0) {
             return (pHead + i);
         }
@@ -33,8 +33,8 @@ entry *append(char lastName[], entry *e)
 {
     e++;
     strcpy(e->lastName, lastName);
-    line_count++;
-    assert(line_count <= MAX_USE_MEM_POOL_SIZE);
+    buffer_count++;
+    assert(buffer_count <= MAX_MEM_POOL_SIZE);
     return e;
 }
 #else

@@ -41,7 +41,7 @@ unsigned int hash2(char *key, hashTable_t *ht)
 #endif
 
 #ifdef THREAD
-pthread_mutex_t mutex = PTHREAD_MUTEX_INITIALIZER;
+//pthread_mutex_t mutex = PTHREAD_MUTEX_INITIALIZER;
 
 void initHashTable(unsigned int bucket_size, unsigned int pool_size)
 {
@@ -149,7 +149,7 @@ entry *append(char lastName[], entry *e, int thd)
     strcpy((hash->pool + (hash->pool_count))->lastName, lastName);
     e = (hash->pool + (hash->pool_count));
     hash->pool_count++;
-    assert(hash->pool_count <= MAX_USE_MEM_POOL_SIZE);
+    assert(hash->pool_count <= MAX_MEM_POOL_SIZE);
     return e;
 #else
     e = (entry *) malloc(sizeof(entry));
@@ -158,9 +158,6 @@ entry *append(char lastName[], entry *e, int thd)
 
     if (hash->pHead == NULL) {
         hash->pHead = e;
-#if defined(__GNUC__)
-        __builtin___clear_cache((char *) hash->pHead, (char *) hash->pHead + sizeof(entry));
-#endif
 # ifdef DEBUG
 //        pthread_mutex_lock(& mutex);
         hashTable.activeBuckets[thd]++;
@@ -269,7 +266,7 @@ entry *append(char lastName[], entry *e)
     strcpy((hash->pool + (hash->pool_count))->lastName, lastName);
     e = (hash->pool + (hash->pool_count));
     hash->pool_count++;
-    assert(hash->pool_count <= MAX_USE_MEM_POOL_SIZE);
+    assert(hash->pool_count <= MAX_MEM_POOL_SIZE);
     return e;
 #else
     e = (entry *) malloc(sizeof(entry));
