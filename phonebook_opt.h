@@ -5,9 +5,13 @@
 
 /* TODO: After modifying the original version, uncomment the following
  * line to set OPT properly */
-// #define OPT 1
-typedef struct __PHONE_BOOK_ENTRY {
-    char lastName[MAX_LAST_NAME_SIZE];
+#define OPT 1
+
+#if defined(USE_MEM_POOL)
+#define MAX_MEM_POOL_SIZE 400000
+#endif
+
+typedef struct phoneBook_s {
     char firstName[16];
     char email[16];
     char phone[10];
@@ -17,10 +21,19 @@ typedef struct __PHONE_BOOK_ENTRY {
     char city[16];
     char state[2];
     char zip[5];
+} phoneBook_t;
+
+typedef struct __PHONE_BOOK_ENTRY {
+    char lastName[MAX_LAST_NAME_SIZE];
+    phoneBook_t *pNode;
     struct __PHONE_BOOK_ENTRY *pNext;
 } entry;
 
-entry *findName(char lastname[], entry *pHead);
+entry *findName(char lastName[], entry *pHead);
 entry *append(char lastName[], entry *e);
+
+#if defined(USE_MEM_POOL)
+entry *createMemoryPool(unsigned int size);
+#endif
 
 #endif
